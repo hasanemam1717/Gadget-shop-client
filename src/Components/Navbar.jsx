@@ -1,6 +1,10 @@
 import { NavLink } from "react-router-dom";
+import useAuth from "../Hooks/useAuth";
+import UserDropdown from "./Home/UserDropdown";
 
 const Navbar = () => {
+  const { user } = useAuth();
+  console.log(user);
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
@@ -41,12 +45,20 @@ const Navbar = () => {
           <NavLink to="/contact">Contact us</NavLink>
         </ul>
       </div>
-      <div className="navbar-end">
-        <div className="flex items-center gap-2 ">
-          <NavLink to="/login" className="btn btn-outline btn-sm bg-gray-400">Log in</NavLink>
-          <NavLink to="/register" className="btn btn-outline btn-sm">Register</NavLink>
+      {user ? (
+        <div className="navbar-end"><UserDropdown></UserDropdown></div>
+      ) : (
+        <div className="navbar-end">
+          <div className="flex items-center gap-2 ">
+            <NavLink to="/login" className="btn btn-outline btn-sm bg-gray-400">
+              Log in
+            </NavLink>
+            <NavLink to="/register" className="btn btn-outline btn-sm">
+              Register
+            </NavLink>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,5 @@
-import {  createContext, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { createContext, useEffect, useState } from "react";
 import app from "./../Firebase/firebase.config";
 import {
   createUserWithEmailAndPassword,
@@ -14,30 +15,37 @@ export const AuthContext = createContext(null);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-const AuthProvidar = ({children}) => {
+const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const createUser = (email, password) => {
+    setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
+
   const logIn = (email, password) => {
+    setLoading(true);
     return signInWithEmailAndPassword(auth, email, password);
   };
+
   const logOut = () => {
+    setLoading(true);
     return signOut(auth);
   };
-  const googleLogIn = () => {
-    return signInWithPopup(auth, googleProvider);
+
+  const GoogleLogIn = () => {
+    setLoading(true);
+     signInWithPopup(auth, googleProvider);
   };
 
   useEffect(() => {
-    const unsubscrib = onAuthStateChanged(auth, (carentUser) =>
-      setUser(carentUser),
-        setLoading(false)
-    );
-    return () => {
-      return unsubscrib;
-    };
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+      console.log(currentUser);
+    });
+    return unsubscribe;
   }, []);
 
   const authInfo = {
@@ -46,13 +54,19 @@ const AuthProvidar = ({children}) => {
     createUser,
     logIn,
     logOut,
-    googleLogIn,
+    GoogleLogIn,
   };
-  return <AuthContext.Provider value={authInfo}>
-    {
-        children
-    }
-  </AuthContext.Provider>
+
+  return (
+    <AuthContext.Provider value={authInfo}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export default AuthProvidar;
+// Add PropTypes validation for the `children` prop
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+export default AuthProvider;
