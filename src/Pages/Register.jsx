@@ -15,27 +15,14 @@ const Register = () => {
   const navigate = useNavigate();
   const onSubmit = (data) => {
     const email = data.email;
+    const password = data.password;
     const role = data.role;
-    const status = role === "bayer" ? "approved" : "pending";
+    const status = role === "buyer" ? "approved" : "pending";
     const wishList = [];
     const userData = { email, role, status, wishList };
-    createUser(data.email, data.password).then(() => {
-      // axios
-      //   .post("/users", {
-      //     firstName: "Fred",
-      //     lastName: "Flintstone",
-      //   })
-      //   .then(function (response) {
-      //     console.log(response);
-      //   });
-      fetch("http://localhost:5000/users", {
-        method: "POST", // HTTP method
-          body: JSON.stringify(userData),
-        headers: {
-          "Content-Type": "application/json", // Specify content type
-        },
-       // Convert the data to JSON
-      }).then((response) => {
+    createUser(email,password ).then(() => {
+      console.log(data);
+      axios.post("http://localhost:5000/userData", userData).then((response) => {
         console.log("Response", response);
       });
     });
@@ -124,7 +111,7 @@ const Register = () => {
                   className="select select-bordered w-full max-w-xs"
                   {...register("role", { required: true })}
                 >
-                  <option value="bayer">Bayer</option>
+                  <option value="buyer">Buyer</option>
                   <option value="seller">Seller</option>
                 </select>
                 {errors.role && (
