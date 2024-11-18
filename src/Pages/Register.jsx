@@ -2,15 +2,46 @@
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 const Register = () => {
   const { createUser } = useAuth();
-  const { register, handleSubmit, watch ,formState:{errors}} = useForm();
-  const navigate = useNavigate()
-  const onSubmit =(data)=>{
-    createUser(data.email,data.password)
-    navigate('/login')
-  }
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+  const navigate = useNavigate();
+  const onSubmit = (data) => {
+    const email = data.email;
+    const role = data.role;
+    const status = role === "bayer" ? "approved" : "pending";
+    const wishList = [];
+    const userData = { email, role, status, wishList };
+    createUser(data.email, data.password).then(() => {
+      // axios
+      //   .post("/users", {
+      //     firstName: "Fred",
+      //     lastName: "Flintstone",
+      //   })
+      //   .then(function (response) {
+      //     console.log(response);
+      //   });
+      fetch("http://localhost:5000/users", {
+        method: "POST", // HTTP method
+          body: JSON.stringify(userData),
+        headers: {
+          "Content-Type": "application/json", // Specify content type
+        },
+       // Convert the data to JSON
+      }).then((response) => {
+        console.log("Response", response);
+      });
+    });
+    navigate("/login");
+    console.log(userData);
+  };
 
   return (
     <div>
@@ -34,9 +65,11 @@ const Register = () => {
                   type="email"
                   placeholder="email"
                   className="input input-bordered"
-                  {...register ("email",{required:true})}
+                  {...register("email", { required: true })}
                 />
-                {errors.email && (<p className="text-red-400 font-thin ">Email is required</p>)}
+                {errors.email && (
+                  <p className="text-red-400 font-thin ">Email is required</p>
+                )}
               </div>
               <div className="form-control">
                 <label className="label">
@@ -46,10 +79,18 @@ const Register = () => {
                   type="password"
                   placeholder="password"
                   className="input input-bordered"
-                  {...register ("password",{required:true})}
+                  {...register("password", { required: true })}
                 />
-                  {errors?.password?.type === "required" && (<p className="text-red-400 font-thin ">Password is required</p>)}
-                  {errors?.password?.type === "minLength" && (<p className="text-red-400 font-thin ">Password must have 6 charetar</p>)}
+                {errors?.password?.type === "required" && (
+                  <p className="text-red-400 font-thin ">
+                    Password is required
+                  </p>
+                )}
+                {errors?.password?.type === "minLength" && (
+                  <p className="text-red-400 font-thin ">
+                    Password must have 6 charetar
+                  </p>
+                )}
               </div>
               <div className="form-control">
                 <label className="label">
@@ -59,11 +100,38 @@ const Register = () => {
                   type="password"
                   placeholder="password"
                   className="input input-bordered"
-                  {...register ("conPass",{required:true ,validate:(value) =>{if(watch('password') != value){
-                    return "Your password do't match"
-                  }}})}
+                  {...register("conPass", {
+                    required: true,
+                    validate: (value) => {
+                      if (watch("password") != value) {
+                        return "Your password do't match";
+                      }
+                    },
+                  })}
                 />
-                {errors.conPass && (<p className="font-thin text-red-400 "> Your password was miss match. </p>)}
+                {errors.conPass && (
+                  <p className="font-thin text-red-400 ">
+                    {" "}
+                    Your password was miss match.{" "}
+                  </p>
+                )}
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Role</span>
+                </label>
+                <select
+                  className="select select-bordered w-full max-w-xs"
+                  {...register("role", { required: true })}
+                >
+                  <option value="bayer">Bayer</option>
+                  <option value="seller">Seller</option>
+                </select>
+                {errors.role && (
+                  <p className="text-red-400 font-thin text-sm ">
+                    You must select your role
+                  </p>
+                )}
               </div>
               <div className="form-control mt-6">
                 <button className="btn btn-primary">Login</button>
