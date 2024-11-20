@@ -27,7 +27,7 @@ const Register = () => {
       });
     });
     navigate("/login");
-    console.log(userData);
+    // console.log(data);
   };
 
   return (
